@@ -9,7 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 
@@ -18,7 +20,7 @@ public class Main {
         Logger logger = LoggerFactory.getLogger(Main.class.getName());
         String bootstrapServers="127.0.0.1:9092";
         String grp_id="g1";
-        String topic="topic1";
+        String topic="WeatherStationData";
         //Creating consumer properties
         Properties properties=new Properties();
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);
@@ -31,15 +33,21 @@ public class Main {
         //Subscribing
         consumer.subscribe(Arrays.asList(topic));
         //polling
+        List<ConsumerRecord<String,String>>buffer = new ArrayList<>();
         while(true){
-            Long start = System.currentTimeMillis();
+
             ConsumerRecords<String,String> records=consumer.poll(Duration.ofMillis(1000));
             for(ConsumerRecord<String,String> record: records){
-                logger.info("Key: "+ record.key() + ", Value:" +record.value());
-                logger.info("Partition:" + record.partition()+",Offset:"+record.offset());
+                //logger.info("Key: "+ record.key() + ", Value:" +record.value());
+                //logger.info("Partition:" + record.partition()+",Offset:"+record.offset());
+                buffer.add(record);
+                if(buffer.size()==10000){
+                    putAsParquet(buffer);buffer.clear();
+                }
             }
-            Long response = System.currentTimeMillis()-start;
-            System.out.println("response Time in ms: "+response);
         }
+    }
+    public static void putAsParquet(List<ConsumerRecord<String,String>>buffer){
+
     }
 }
