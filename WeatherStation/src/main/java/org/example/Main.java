@@ -18,7 +18,7 @@ public class Main {
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,StringSerializer.class.getName());
-        WeatherStationMock weatherStation = new WeatherStationMock("1",false);
+        WeatherStationMock weatherStation = new WeatherStationMock(args[0],false);
 
         while(true) {
              String msg = weatherStation.generate_new_msg();

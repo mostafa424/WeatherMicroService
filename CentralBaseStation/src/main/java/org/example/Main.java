@@ -35,7 +35,6 @@ public class Main {
         //polling
         List<ConsumerRecord<String,String>>buffer = new ArrayList<>();
         while(true){
-
             ConsumerRecords<String,String> records=consumer.poll(Duration.ofMillis(1000));
             for(ConsumerRecord<String,String> record: records){
                 //logger.info("Key: "+ record.key() + ", Value:" +record.value());
