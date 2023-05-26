@@ -1,40 +1,55 @@
 import platform
 from elasticsearch import Elasticsearch
+from elasticsearch.transport import Transport
 import pyarrow.parquet as pq
-import pandas as pd
 import json
 
 # Check the operating system
 is_ubuntu = platform.system() == "Linux"
 
+def read_file(path):
+    with open(path, "r") as file:
+        content = file.read().strip()
+    return content
+
 # Connect to Elasticsearch
 if is_ubuntu:
     es = Elasticsearch("http://localhost:9200/")
 else:
-    # Take username and password as input
-    username = input("Enter username: ")
-    password = input("Enter password: ")
+    # Take username and password from files
+    username_path = "username.txt"
+    password_path = "password.txt"
+    username = read_file(username_path)
+    password = read_file(password_path)
+    #
+    # # Create a JSON payload for the new user with admin privileges
+    # new_user_payload = {
+    #     "password": password,
+    #     "roles": ["superuser"],
+    #     "full_name": "New Admin User"
+    # }
+    #
+    # # Create or update the new user
+    # transport = Transport([{"host": "localhost", "port": 9200}], http_auth=(username, password))
+    # try:
+    #     transport.perform_request("PUT", f"_security/user/{username}", body=new_user_payload)
+    #     print("New user created or updated successfully.")
+    # except Exception as e:
+    #     print("Error creating or updating the user:", e)
+
+    # Log in with the new user's credentials
     try:
-        es = Elasticsearch(f"http://{username}:{password}@localhost:9200/")
+        es = Elasticsearch("http://localhost:9200/", http_auth=(username, password))
+        print("Logged in .")
     except Exception as e:
-        print("Error connecting to Elasticsearch:", e)
-        exit()
+        print("Error logging in: ", e)
+
 
 # Ask for index name
-index_name = input("Enter index name: ")
-
-# Ask for parquet file path
-parquet_file_path = input("Enter parquet file path: ")
+index_name = read_file("index.txt")
 
 # Ask for mapping file path
-mapping_file_path = input("Enter mapping file path: ")
-
-# Read mapping from file
-with open(mapping_file_path, "r") as mapping_file:
-    mapping_content = mapping_file.read()
-
-# Convert mapping content to a dictionary
-mapping = json.loads(mapping_content)
+mapping = json.loads(read_file("mapping.txt"))
 
 # Create index with mapping
 try:
@@ -44,8 +59,9 @@ except Exception as e:
     exit()
 
 # Read parquet file
-table = pq.read_table(parquet_file_path)
+table = pq.read_table("data.parquet")
 df = table.to_pandas()
+
 # Push content to Elasticsearch
 for row in df.itertuples():
     document = row._asdict()

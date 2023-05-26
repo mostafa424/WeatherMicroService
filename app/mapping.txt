@@ -1,0 +1,19 @@
+{
+    "mappings": {
+        "properties": {
+            "registration_dttm": {"type": "date"},
+            "id": {"type": "integer"},
+            "first_name": {"type": "text"},
+            "last_name": {"type": "text"},
+            "email": {"type": "text"},
+            "gender": {"type": "text"},
+            "ip_address": {"type": "text"},
+            "cc": {"type": "text"},
+            "country": {"type": "text"},
+            "birthdate": {"type": "text"},
+            "salary": {"type": "double"},
+            "title": {"type": "text"},
+            "comments": {"type": "text"}
+        }
+    }
+}

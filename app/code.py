@@ -7,6 +7,10 @@ import json
 # Check the operating system
 is_ubuntu = platform.system() == "Linux"
 
+def read_file(path):
+    with open(path, "r") as file:
+        content = file.read()
+    return content
 # Connect to Elasticsearch
 if is_ubuntu:
     es = Elasticsearch("http://localhost:9200/")
