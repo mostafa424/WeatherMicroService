@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: centralbasestationimage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: centralbasestationimage
+  template:
+    metadata:
+      labels:
+        app: centralbasestationimage
+    spec:
+      containers:
+        - name: centralbasestationimage
+          image: mostafaeltawy/centralbasestationimage:latest
+
+          ports:
+            - containerPort: 8083
