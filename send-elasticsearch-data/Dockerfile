@@ -1,5 +1,5 @@
 # Base image
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -12,15 +12,8 @@ RUN apt-get update && \
 # Copy the code file to the working directory
 COPY code.py .
 
-# Copy the necessary files
-COPY username.txt .
-COPY password.txt .
-COPY index.txt .
-COPY mapping.txt .
-COPY data.parquet .
-
 # Install Python libraries
-RUN pip3 install elasticsearch pyarrow pandas
+RUN pip3 install elasticsearch pyarrow
 
 # Set environment variables (optional)
 ENV USERNAME=""

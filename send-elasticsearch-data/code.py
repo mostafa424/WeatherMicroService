@@ -1,55 +1,42 @@
 import platform
 from elasticsearch import Elasticsearch
-from elasticsearch.transport import Transport
 import pyarrow.parquet as pq
-import json
 
 # Check the operating system
-is_ubuntu = True
-# platform.system() == "Linux"
-def read_file(path):
-    with open(path, "r") as file:
-        content = file.read().strip()
-    return content
+is_ubuntu = platform.system() == "Linux"
 
 # Connect to Elasticsearch
 if is_ubuntu:
     es = Elasticsearch("http://localhost:9200/")
+    print("Logged in .")
 else:
     # Take username and password from files
-    username_path = "username.txt"
-    password_path = "password.txt"
-    username = read_file(username_path)
-    password = read_file(password_path)
-    #
-    # # Create a JSON payload for the new user with admin privileges
-    # new_user_payload = {
-    #     "password": password,
-    #     "roles": ["superuser"],
-    #     "full_name": "New Admin User"
-    # }
-    #
-    # # Create or update the new user
-    # transport = Transport([{"host": "localhost", "port": 9200}], http_auth=(username, password))
-    # try:
-    #     transport.perform_request("PUT", f"_security/user/{username}", body=new_user_payload)
-    #     print("New user created or updated successfully.")
-    # except Exception as e:
-    #     print("Error creating or updating the user:", e)
-
+    username = input("username: ")
+    password = input("password: ")
     # Log in with the new user's credentials
     try:
-        es = Elasticsearch("http://localhost:9200/", http_auth=(username, password))
+        es = Elasticsearch("http://localhost:9200/", basic_auth=(username, password))
         print("Logged in .")
     except Exception as e:
         print("Error logging in: ", e)
 
-
 # Ask for index name
-index_name = read_file("index.txt")
+index_name = input("index: ")
 
 # Ask for mapping file path
-mapping = json.loads(read_file("mapping.txt"))
+mapping = {
+    "mappings": {
+        "properties": {
+            "battery_status": {"type": "text"},
+            "humidity": {"type": "integer"},
+            "s_no": {"type": "integer"},
+            "station_id": {"type": "integer"},
+            "status_timestamp": {"type": "integer"},
+            "temperature": {"type": "integer"},
+            "wind_speed": {"type": "integer"}
+        }
+    }
+}
 
 # Create index with mapping
 try:
@@ -59,7 +46,8 @@ except Exception as e:
     exit()
 
 # Read parquet file
-table = pq.read_table("data.parquet")
+f_name = input("parquet path: ")
+table = pq.read_table(f_name)
 df = table.to_pandas()
 
 # Push content to Elasticsearch
