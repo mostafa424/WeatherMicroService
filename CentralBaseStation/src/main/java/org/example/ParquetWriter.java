@@ -5,6 +5,7 @@ import org.apache.avro.generic.GenericData;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.avro.AvroParquetWriter;
+import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 
 import java.io.File;
@@ -32,23 +33,20 @@ public class ParquetWriter {
     }
 
     public static void writeToParquetFile(List<GenericData.Record> recordList, Schema schema, String fileName) {
-        File file = new File("parquet_files/" + fileName);
+        File file = new File("./parquet_files/" + fileName);
         if(file.exists())
             file.delete();
-        // Output path for Parquet file in HDFS
-        Path path =	new	Path("parquet_files/" + fileName);
+
+        Path path =	new	Path("./parquet_files/" + fileName);
         org.apache.parquet.hadoop.ParquetWriter<GenericData.Record> writer = null;
         // Creating ParquetWriter using builder
         try {
-            writer = AvroParquetWriter.
-                    <GenericData.Record>builder(path)
-                    .withRowGroupSize(org.apache.parquet.hadoop.ParquetWriter.DEFAULT_BLOCK_SIZE)
-                    .withPageSize(org.apache.parquet.hadoop.ParquetWriter.DEFAULT_PAGE_SIZE)
+            writer = AvroParquetWriter
+                    .<GenericData.Record>builder(path)
                     .withSchema(schema)
                     .withConf(new Configuration())
                     .withCompressionCodec(CompressionCodecName.SNAPPY)
-                    .withValidation(false)
-                    .withDictionaryEncoding(false)
+                    .withWriteMode(ParquetFileWriter.Mode.OVERWRITE)
                     .build();
             // writing records
             for (GenericData.Record record : recordList) {

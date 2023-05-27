@@ -43,41 +43,48 @@ public class Main {
             for(ConsumerRecord<String,String> record: records){
                 //logger.info("Key: "+ record.key() + ", Value:" +record.value());
                 //logger.info("Partition:" + record.partition()+",Offset:"+record.offset());
+                System.out.println(record.value());
                 buffer.add(record);
-                if(buffer.size()==10000){
+                if(buffer.size()==10){
                     putAsParquet(buffer);buffer.clear();
                 }
             }
         }
     }
     public static void putAsParquet(List<ConsumerRecord<String,String>> buffer) throws ParseException {
-        ArrayList<ArrayList<GenericData.Record>> recordList = new ArrayList<ArrayList<GenericData.Record>>(11);
+        ArrayList<ArrayList<GenericData.Record>> recordList = new ArrayList<ArrayList<GenericData.Record>>();
+        for(int i=0; i <= 10; i++)
+            recordList.add(new ArrayList<>());
+
         for(ConsumerRecord<String, String> record: buffer){
             JSONParser parser = new JSONParser();
-            JSONObject recordJson = (JSONObject) parser.parse(record.value());
+            try{
+                JSONObject recordJson = (JSONObject) parser.parse(record.value());
 
-            long station_id = (long) recordJson.get("station_id");
-            long s_no = (long) recordJson.get("s_no");
-            String battery_status = (String) recordJson.get("battery_status");
-            long status_timestamp = (long) recordJson.get("status_timestamp");
-            JSONObject weatherJson = (JSONObject) recordJson.get("weather");
-            int humidity = (int) weatherJson.get("humidity");
-            int temperature = (int) weatherJson.get("temperature");
-            int wind_speed = (int) weatherJson.get("wind_speed");
+                long station_id = Long.parseLong((String) recordJson.get("station_id"));
+                long s_no = (long) recordJson.get("s_no");
+                String battery_status = (String) recordJson.get("battery_status");
+                long status_timestamp = (long) recordJson.get("status_timestamp");
+                JSONObject weatherJson = (JSONObject) recordJson.get("weather");
+                int humidity = Integer.parseInt(String.valueOf(weatherJson.get("humidity")));
+                int temperature = Integer.parseInt(String.valueOf(weatherJson.get("temperature")));
+                int wind_speed = Integer.parseInt(String.valueOf(weatherJson.get("wind_speed")));
 
-            GenericData.Record genericRecord = new GenericData.Record(ParquetWriter.parseSchema());
-            genericRecord.put("station_id", station_id);
-            genericRecord.put("s_no", s_no);
-            genericRecord.put("battery_status", battery_status);
-            genericRecord.put("status_timestamp", status_timestamp);
-            genericRecord.put("humidity", humidity);
-            genericRecord.put("temperature", temperature);
-            genericRecord.put("wind_speed", wind_speed);
+                GenericData.Record genericRecord = new GenericData.Record(ParquetWriter.parseSchema());
+                genericRecord.put("station_id", station_id);
+                genericRecord.put("s_no", s_no);
+                genericRecord.put("battery_status", battery_status);
+                genericRecord.put("status_timestamp", status_timestamp);
+                genericRecord.put("humidity", humidity);
+                genericRecord.put("temperature", temperature);
+                genericRecord.put("wind_speed", wind_speed);
 
-            recordList.get((int) station_id).add(genericRecord);
+                recordList.get((int) station_id).add(genericRecord);
+            } catch(Exception ignored){}
         }
         for(int i = 1; i <= 10; i++){
-            ParquetWriter.writeToParquetFile(recordList.get(i), i);
+            if(recordList.get(i).size() > 0)
+                ParquetWriter.writeToParquetFile(recordList.get(i), i);
         }
     }
 }
