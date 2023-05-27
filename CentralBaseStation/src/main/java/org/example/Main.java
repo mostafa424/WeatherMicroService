@@ -1,12 +1,16 @@
 package org.example;
 
+import org.apache.avro.generic.GenericData;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -16,7 +20,7 @@ import java.util.Properties;
 
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
         Logger logger = LoggerFactory.getLogger(Main.class.getName());
         String bootstrapServers="127.0.0.1:9092";
         String grp_id="g1";
@@ -46,7 +50,34 @@ public class Main {
             }
         }
     }
-    public static void putAsParquet(List<ConsumerRecord<String,String>>buffer){
+    public static void putAsParquet(List<ConsumerRecord<String,String>> buffer) throws ParseException {
+        ArrayList<ArrayList<GenericData.Record>> recordList = new ArrayList<ArrayList<GenericData.Record>>(11);
+        for(ConsumerRecord<String, String> record: buffer){
+            JSONParser parser = new JSONParser();
+            JSONObject recordJson = (JSONObject) parser.parse(record.value());
 
+            long station_id = (long) recordJson.get("station_id");
+            long s_no = (long) recordJson.get("s_no");
+            String battery_status = (String) recordJson.get("battery_status");
+            long status_timestamp = (long) recordJson.get("status_timestamp");
+            JSONObject weatherJson = (JSONObject) recordJson.get("weather");
+            int humidity = (int) weatherJson.get("humidity");
+            int temperature = (int) weatherJson.get("temperature");
+            int wind_speed = (int) weatherJson.get("wind_speed");
+
+            GenericData.Record genericRecord = new GenericData.Record(ParquetWriter.parseSchema());
+            genericRecord.put("station_id", station_id);
+            genericRecord.put("s_no", s_no);
+            genericRecord.put("battery_status", battery_status);
+            genericRecord.put("status_timestamp", status_timestamp);
+            genericRecord.put("humidity", humidity);
+            genericRecord.put("temperature", temperature);
+            genericRecord.put("wind_speed", wind_speed);
+
+            recordList.get((int) station_id).add(genericRecord);
+        }
+        for(int i = 1; i <= 10; i++){
+            ParquetWriter.writeToParquetFile(recordList.get(i), i);
+        }
     }
 }

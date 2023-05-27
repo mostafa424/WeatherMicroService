@@ -11,6 +11,43 @@
 
     <artifactId>CentralBaseStation</artifactId>
     <dependencies>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.parquet/parquet-avro -->
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-avro</artifactId>
+            <version>1.8.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.parquet/parquet-hadoop -->
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-hadoop</artifactId>
+            <version>1.13.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-common -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>3.3.5</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-hdfs -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs</artifactId>
+            <version>3.3.5</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Avro dependency -->
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>1.10.2</version> <!-- Replace with the desired version -->
+        </dependency>
+
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
@@ -23,7 +60,12 @@
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.36</version>
         </dependency>
-        </dependencies>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <!-- Maven Shade Plugin -->
