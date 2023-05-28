@@ -22,7 +22,7 @@ import java.util.Properties;
 public class Main {
     public static void main(String[] args) throws ParseException {
         Logger logger = LoggerFactory.getLogger(Main.class.getName());
-        String bootstrapServers="127.0.0.1:9092";
+        String bootstrapServers="my-kafka:9092";
         String grp_id="g1";
         String topic="WeatherStationData";
         //Creating consumer properties
@@ -41,8 +41,6 @@ public class Main {
         while(true){
             ConsumerRecords<String,String> records=consumer.poll(Duration.ofMillis(1000));
             for(ConsumerRecord<String,String> record: records){
-                //logger.info("Key: "+ record.key() + ", Value:" +record.value());
-                //logger.info("Partition:" + record.partition()+",Offset:"+record.offset());
                 System.out.println(record.value());
                 buffer.add(record);
                 if(buffer.size()==10){
