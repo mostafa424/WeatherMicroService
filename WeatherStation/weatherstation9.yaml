@@ -16,7 +16,7 @@ spec:
         - name: weather_station_9_image
           image: mostafaeltawy/weatherstationimage:latest
         - env:
-            -name:station_id
+            -name:stationid
             -value:"9"
           ports:
             - containerPort: 8089
