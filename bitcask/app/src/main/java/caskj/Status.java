@@ -2,17 +2,17 @@ package caskj;
 
 
 public class Status {
-    public int stationId;
-    public int statusNo;
-    public String batteryStatus;
-    public long timestamp;
-    public int[] weather = new int[3];  
+    public long stationId; // 8
+    public long statusNo; // 8
+    public String batteryStatus; // len
+    public long timestamp; // 8
+    public int[] weather = new int[3]; // 12  
 
     public Status() {
 
     }
 
-    public Status(int stationId, int statusNo, String batteryStatus, long timestamp, int[] weather) {
+    public Status(long stationId, long statusNo, String batteryStatus, long timestamp, int[] weather) {
         this.stationId = stationId;
         this.statusNo = statusNo;
         this.batteryStatus = batteryStatus;
