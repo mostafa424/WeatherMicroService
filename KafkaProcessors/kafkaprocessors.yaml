@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kafkaprocessorsimage
+  name: kafkaprocessorimage
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kafkaprocessorsimage
+      app: kafkaprocessorimage
   template:
     metadata:
       labels:
-        app: kafkaprocessorsimage
+        app: kafkaprocessorimage
     spec:
       containers:
-        - name: kafkaprocessorsimage
-          image: mostafaeltawy/kafkaprocessorsimage:latest
+        - name: kafkaprocessorimage
+          image: kotb00/kafkaprocessorimage:latest
 
           ports:
-            - containerPort: 8082
+            - containerPort: 8052

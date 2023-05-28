@@ -26,8 +26,9 @@ public class WeatherProcessor implements Processor<String,String> {
             String StationId = (String) json.get("station_id");
             JSONObject weather = (JSONObject) json.get("weather");
             String humidiy = (String)weather.get("humidity");
-            int humidity_number = Integer.parseInt(humidiy);
-            if(humidity_number>=70){
+            double humidity_number = Double.parseDouble(humidiy);
+            int humidity_number_int = (int)humidity_number;
+            if(humidity_number_int>=70){
                 System.out.println("It is raining in "+StationId);
             }
         } catch (ParseException e) {

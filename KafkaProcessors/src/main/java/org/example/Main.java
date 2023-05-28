@@ -39,7 +39,7 @@ public class Main {
                 String StationId = (String) json.get("station_id");
                 JSONObject weather = (JSONObject) json.get("weather");
                 String humidity = String.valueOf(weather.get("humidity"));
-                int humidity_number = Integer.parseInt(humidity);
+                double humidity_number = Double.parseDouble(humidity);
                 if(humidity_number>=70){
                     System.out.println("humidity = "+humidity_number+"It is raining in "+StationId);
                     return true;
@@ -48,7 +48,8 @@ public class Main {
                     return false;
                 }
             } catch (ParseException e) {
-                throw new RuntimeException(e);
+                // throw new RuntimeException(e);
+                return false;
             }
             });
         rainingStream.to("RainingTopics", Produced.with(Serdes.String(), Serdes.String()));

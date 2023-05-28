@@ -33,11 +33,11 @@ public class ParquetWriter {
     }
 
     public static void writeToParquetFile(List<GenericData.Record> recordList, Schema schema, String fileName) {
-        File file = new File("./parquet_files/" + fileName);
+        File file = new File("/home/kotb/shared-storage/" + fileName);
         if(file.exists())
             file.delete();
 
-        Path path =	new	Path("./parquet_files/" + fileName);
+        Path path =	new	Path("/home/kotb/shared-storage/" + fileName);
         org.apache.parquet.hadoop.ParquetWriter<GenericData.Record> writer = null;
         // Creating ParquetWriter using builder
         try {

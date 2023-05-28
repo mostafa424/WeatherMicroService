@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.io.DataOutputStream;
+import java.net.Socket;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +23,18 @@ import java.util.Properties;
 
 public class Main {
     public static void main(String[] args) throws ParseException {
+        MessageEncoder messageEncoder = new MessageEncoder();
+        try {
+            Socket openSsocket = new Socket("10.244.0.48", 6666);
+            DataOutputStream dos0 = new DataOutputStream(openSsocket.getOutputStream());
+            dos0.write(messageEncoder.encodeOpen("/home/bitcask"));
+            dos0.flush();
+            dos0.close();
+            openSsocket.close();
+        } catch(Exception e) {
+            System.out.println("Could not open bitcask store");
+            e.printStackTrace();
+        }
         Logger logger = LoggerFactory.getLogger(Main.class.getName());
         String bootstrapServers="my-kafka:9092";
         String grp_id="g1";
@@ -43,8 +57,10 @@ public class Main {
             for(ConsumerRecord<String,String> record: records){
                 System.out.println(record.value());
                 buffer.add(record);
-                if(buffer.size()==10){
-                    putAsParquet(buffer);buffer.clear();
+                if(buffer.size() >= 10){
+                    putAsParquet(buffer);
+                    writeBitcask(buffer, messageEncoder);
+                    buffer.clear();
                 }
             }
         }
@@ -64,9 +80,9 @@ public class Main {
                 String battery_status = (String) recordJson.get("battery_status");
                 long status_timestamp = (long) recordJson.get("status_timestamp");
                 JSONObject weatherJson = (JSONObject) recordJson.get("weather");
-                int humidity = Integer.parseInt(String.valueOf(weatherJson.get("humidity")));
-                int temperature = Integer.parseInt(String.valueOf(weatherJson.get("temperature")));
-                int wind_speed = Integer.parseInt(String.valueOf(weatherJson.get("wind_speed")));
+                int humidity = (int)Double.parseDouble(String.valueOf(weatherJson.get("humidity")));
+                int temperature = (int)Double.parseDouble(String.valueOf(weatherJson.get("temperature")));
+                int wind_speed = (int)Double.parseDouble(String.valueOf(weatherJson.get("wind_speed")));
 
                 GenericData.Record genericRecord = new GenericData.Record(ParquetWriter.parseSchema());
                 genericRecord.put("station_id", station_id);
@@ -85,4 +101,37 @@ public class Main {
                 ParquetWriter.writeToParquetFile(recordList.get(i), i);
         }
     }
-}
+
+    public static void writeBitcask(List<ConsumerRecord<String,String>> buffer, MessageEncoder messageEncoder) {
+        
+        try{
+            for(ConsumerRecord<String, String> record: buffer){
+                JSONParser parser = new JSONParser();
+                JSONObject recordJson = (JSONObject) parser.parse(record.value());
+
+                long station_id = Long.parseLong((String) recordJson.get("station_id"));
+                long s_no = (long) recordJson.get("s_no");
+                String battery_status = (String) recordJson.get("battery_status");
+                long status_timestamp = (long) recordJson.get("status_timestamp");
+                JSONObject weatherJson = (JSONObject) recordJson.get("weather");
+                int humidity = (int)Double.parseDouble(String.valueOf(weatherJson.get("humidity")));
+                int temperature = (int)Double.parseDouble(String.valueOf(weatherJson.get("temperature")));
+                int wind_speed = (int)Double.parseDouble(String.valueOf(weatherJson.get("wind_speed")));
+
+
+                Socket socket = new Socket("10.244.0.48", 6666);
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                int[] weather = new int[3];
+                weather[0] = humidity;
+                weather[1] = temperature;
+                weather[2] = wind_speed;
+
+                Status status = new Status(station_id, s_no, battery_status, status_timestamp, weather);
+                dos.write(messageEncoder.encodePut((int)status.stationId, status));
+                dos.flush();    
+                dos.close();
+                socket.close();
+            }
+        } catch(Exception ignored){}
+    }
+ }
