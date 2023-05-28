@@ -25,27 +25,20 @@ public class App {
 		
     public static void main(String[] args) {
         Bitcask bitcask = new Bitcask4j();
-        Status status = new Status();
-        status.stationId = 3;
-        status.statusNo = 220;
-        status.batteryStatus = "low";
-        status.timestamp = System.currentTimeMillis();
-        status.weather[0] = 55;
-        status.weather[1] = 90;
-        status.weather[2] = 30;
+
         MessageHandler messageHandler = new MessageHandler();
         try {
-            ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]));
+            ServerSocket serverSocket = new ServerSocket(6666);
             while(true) {
                 Socket socket = serverSocket.accept();
                 DataInputStream dis = new DataInputStream(socket.getInputStream());
-                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
                 byte[] bytes = dis.readAllBytes();
                 String response = messageHandler.handleMessage(bitcask, bytes);
+                if(response == Response.CLOSED_SUCCESSULLY.name()) break;
                 dis.close();
-                dos.close();
                 System.out.println(response);
             }
+            serverSocket.close();
 
         }
         catch(Exception e) {
