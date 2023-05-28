@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weatherstation9
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weatherstation9
+  template:
+    metadata:
+      labels:
+        app: weatherstation9
+    spec:
+      containers:
+        - name: weatherstation9image
+          image: kotb00/weather:latest
+          env:
+          - name: stationid
+            value: "9"
+          ports:
+            - containerPort: 8089
