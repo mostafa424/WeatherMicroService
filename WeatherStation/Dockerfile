@@ -13,6 +13,8 @@ RUN mvn package
 FROM openjdk:16
 COPY . /app
 WORKDIR /app
-
-CMD ["java", "-jar", "/app/target/WeatherStation-1.0-SNAPSHOT.jar","$PARAMETER"]
+ARG station_id=0
+ENV stationid=station_id
+ADD target/WeatherStation-1.0-SNAPSHOT.jar WeatherStation-1.0-SNAPSHOT.jar
+ENTRYPOINT ["java", "-jar", "WeatherStation-1.0-SNAPSHOT.jar"]
 

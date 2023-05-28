@@ -18,7 +18,7 @@ import java.util.Properties;
 
 public class Main {
     public static void main(String[] args) {
-        String bootstrapServers="127.0.0.1:9092";
+        String bootstrapServers="my-kafka:9092";
         Properties properties = new Properties();
         properties.put(StreamsConfig.APPLICATION_ID_CONFIG, "my-first-streams-application");
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);

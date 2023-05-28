@@ -1,20 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: weatherstationimage
+  name: weather_station_2
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: weatherstationimage
+      app: weather_station_2
   template:
     metadata:
       labels:
-        app: weatherstationimage
+        app: weather_station_2
     spec:
       containers:
-        - name: weatherstationimage
+        - name: weather_station_2_image
           image: mostafaeltawy/weatherstationimage:latest
-
+        - env:
+            -name:station_id
+            -value:"2"
           ports:
-            - containerPort: 8081
+            - containerPort: 8082

@@ -4,6 +4,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 public class WeatherStationMock {
@@ -13,10 +14,11 @@ public class WeatherStationMock {
     String status ;
     long status_timestamp ;
 
-    int humidity ;
-    int temperature ;
-    int wind_speed ;
+    double humidity ;
+    double temperature ;
+    double wind_speed ;
     int drop_rate ;
+    boolean fromAPI;
     public WeatherStationMock(String station_id,boolean fromAPI) throws Exception{
         Random random = new Random();
         this.station_id = station_id;
@@ -27,13 +29,13 @@ public class WeatherStationMock {
         this.temperature = random.nextInt(134);
         this.wind_speed = random.nextInt(408);
         this.drop_rate = random.nextInt(10)+1;
+        this.fromAPI = fromAPI;
 
-        if(fromAPI){
-            int[] new_data = ChannelAdapter.openMeteoToWeatherStation();
+        if(this.fromAPI){
+            double[] new_data = ChannelAdapter.openMeteoToWeatherStation(this.station_id);
             this.humidity = new_data[0];
             this.temperature = new_data[1];
             this.wind_speed = new_data[2];
-            this.drop_rate = new_data[3];
         }
 
     }
@@ -49,30 +51,24 @@ public class WeatherStationMock {
             return "high";
         }
     }
-    public String generate_new_msg(){
+    public String generate_new_msg() throws Exception {
         Random random = new Random();
         this.s_no ++;
         this.status = this.updateBatteryStatus();
         this.status_timestamp = System.currentTimeMillis() / 1000L;
-        this.humidity = random.nextInt(100);
-        this.temperature = random.nextInt(134);
-        this.wind_speed = random.nextInt(408);
         this.drop_rate = random.nextInt(10)+1;
-        return outputMessage();
-    }
-    public String generate_new_msg(boolean fromAPI){
-        Random random = new Random();
-        this.s_no ++;
-        this.status = this.updateBatteryStatus();
-        this.status_timestamp = System.currentTimeMillis() / 1000L;
         if(fromAPI){
+            double[] new_data = ChannelAdapter.openMeteoToWeatherStation(this.station_id);
+            this.humidity = new_data[0];
+            this.temperature = new_data[1];
+            this.wind_speed = new_data[2];
 
+            System.out.println(Arrays.toString(new_data));
         }
         else{
             this.humidity = random.nextInt(100);
             this.temperature = random.nextInt(134);
             this.wind_speed = random.nextInt(408);
-            this.drop_rate = random.nextInt(10)+1;
         }
 
         return outputMessage();

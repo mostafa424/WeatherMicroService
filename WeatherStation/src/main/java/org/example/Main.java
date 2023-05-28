@@ -13,12 +13,14 @@ import java.util.Properties;
 public class Main {
 
     public static void main(String[] args) throws Exception{
-        String bootstrapServers="127.0.0.1:9092";
+        System.out.println(System.getenv("stationid"));
+        String station_id =  System.getenv("stationid").replaceAll("^\"|\"$", "");
+        String bootstrapServers="my-kafka:9092";
         Properties properties = new Properties();
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,StringSerializer.class.getName());
-        WeatherStationMock weatherStation = new WeatherStationMock(args[0],false);
+        WeatherStationMock weatherStation = new WeatherStationMock(station_id,true);
 
         while(true) {
              String msg = weatherStation.generate_new_msg();
