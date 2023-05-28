@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: weatherstation1image
-          image: mostafaeltawy/weatherstationimage:latest
+          image: mostafaeltawy/weather:latest
           env:
           - name: station_id
             value: "1"
